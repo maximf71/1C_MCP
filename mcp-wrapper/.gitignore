@@ -1,0 +1,7 @@
+*.exe
+*.log
+*.tmp
+.mcp-1c-analog-cache/
+dist/
+integration/
+coverage.out

@@ -1,0 +1,34 @@
+# Build output
+dist/
+target/
+*.exe
+*.jar
+*.log
+coverage.out
+
+# IDE and local workspace state
+.idea/
+.vscode/
+.settings/
+.metadata/
+.project
+.classpath
+
+# Runtime descriptors and secrets
+bridge.json
+bridge.json.tmp
+.onec-edt-mcp/
+config.local.toml
+*.token
+
+# 1C databases and temporary files
+*.1CD
+*.1CL
+*.cfl
+1Cv8Log/
+*.cf
+*.dt
+
+# OS files
+Thumbs.db
+.DS_Store

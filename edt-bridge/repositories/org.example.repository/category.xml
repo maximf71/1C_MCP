@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="com.codex.onec.edt.mcp.feature">
+      <category name="com.codex.onec.edt.mcp.category"/>
+   </feature>
+   <category-def name="com.codex.onec.edt.mcp.category" label="Codex 1C EDT integration"/>
+</site>
