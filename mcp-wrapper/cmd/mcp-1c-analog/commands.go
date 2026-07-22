@@ -70,6 +70,14 @@ func runSetup(args []string, input io.Reader, output io.Writer) error {
 	externalRoot := set.String("external-objects-root", "", "Managed external objects root")
 	gitRoot := set.String("git-root", "", "Fixed Git repository for the scoped git tool")
 	gitExecutable := set.String("git-executable", "", "Exact Git executable")
+	techlogConfig := set.String("techlog-config", "", "Exact logcfg.xml managed by diagnostics")
+	techlogRoot := set.String("techlog-root", "", "Fixed technological-log output directory")
+	vanessaPlatform := set.String("vanessa-platform", "", "Exact 1cv8 executable for Vanessa")
+	vanessaInfobase := set.String("vanessa-infobase", "", "Fixed file infobase for Vanessa")
+	vanessaRunner := set.String("vanessa-runner", "", "Exact vanessa-automation.epf path")
+	vanessaFeaturesRoot := set.String("vanessa-features-root", "", "Fixed Vanessa feature root")
+	vanessaStepsRoot := set.String("vanessa-steps-root", "", "Optional Vanessa step-library root")
+	configurationSourceRoot := set.String("configuration-source-root", "", "Fixed root for configuration update sources")
 	profilesDir := set.String("profiles-dir", "", "Profiles directory")
 	codexConfig := set.String("codex-config", defaultCodexConfig(), "Codex config.toml path")
 	skipCodex := set.Bool("skip-codex", false, "Do not update Codex config")
@@ -129,7 +137,11 @@ func runSetup(args []string, input io.Reader, output io.Writer) error {
 		DumpDir: *dumpDir, ComparisonDump: *comparisonDump, CacheDir: filepath.Join(workRoot, "cache"), WorkDir: filepath.Join(workRoot, "metadata"),
 		EDTWorkspace: *edtWorkspace, EDTBridge: *edtBridge, DitrixURL: *ditrixURL, DitrixProject: *ditrixProject,
 		ExternalObjectsRoot: *externalRoot, GitRoot: *gitRoot, GitExecutable: *gitExecutable,
-		RequestTimeout: *requestTimeout, MaxResponseSize: maximum,
+		TechlogConfig: *techlogConfig, TechlogRoot: *techlogRoot,
+		VanessaPlatform: *vanessaPlatform, VanessaInfobase: *vanessaInfobase, VanessaRunner: *vanessaRunner,
+		VanessaFeaturesRoot: *vanessaFeaturesRoot, VanessaStepsRoot: *vanessaStepsRoot,
+		ConfigurationSourceRoot: *configurationSourceRoot,
+		RequestTimeout:          *requestTimeout, MaxResponseSize: maximum,
 	}
 	if !*skipExtension && value.Infobase != "" {
 		if value.Platform == "" {
@@ -280,6 +292,16 @@ func runServe(args []string) error {
 		if value.ComparisonDump != "" {
 			legacyArgs = append(legacyArgs, "--comparison-dump", value.ComparisonDump)
 		}
+		for _, item := range []struct{ name, value string }{
+			{"--techlog-config", value.TechlogConfig}, {"--techlog-root", value.TechlogRoot},
+			{"--vanessa-platform", value.VanessaPlatform}, {"--vanessa-infobase", value.VanessaInfobase},
+			{"--vanessa-runner", value.VanessaRunner}, {"--vanessa-features-root", value.VanessaFeaturesRoot},
+			{"--vanessa-steps-root", value.VanessaStepsRoot}, {"--configuration-source-root", value.ConfigurationSourceRoot},
+		} {
+			if item.value != "" {
+				legacyArgs = append(legacyArgs, item.name, item.value)
+			}
+		}
 	} else {
 		return errors.New("--mode must be db or edt")
 	}
@@ -373,6 +395,14 @@ func checkProfile(value profile.Profile) profileCheck {
 	result.Checks["ditrix_url"] = value.DitrixURL == "" || validLoopbackMCP(value.DitrixURL)
 	result.Checks["git_root"] = value.GitRoot == "" || directory(filepath.Join(value.GitRoot, ".git")) || regularFile(filepath.Join(value.GitRoot, ".git"))
 	result.Checks["git_executable"] = value.GitExecutable == "" || regularFile(value.GitExecutable)
+	result.Checks["techlog_config_parent"] = value.TechlogConfig == "" || directory(filepath.Dir(value.TechlogConfig))
+	result.Checks["techlog_root"] = value.TechlogRoot == "" || directory(value.TechlogRoot) || directory(filepath.Dir(value.TechlogRoot))
+	result.Checks["vanessa_platform"] = value.VanessaPlatform == "" || regularFile(value.VanessaPlatform)
+	result.Checks["vanessa_infobase"] = value.VanessaInfobase == "" || directory(value.VanessaInfobase)
+	result.Checks["vanessa_runner"] = value.VanessaRunner == "" || regularFile(value.VanessaRunner)
+	result.Checks["vanessa_features_root"] = value.VanessaFeaturesRoot == "" || directory(value.VanessaFeaturesRoot)
+	result.Checks["vanessa_steps_root"] = value.VanessaStepsRoot == "" || directory(value.VanessaStepsRoot)
+	result.Checks["configuration_source_root"] = value.ConfigurationSourceRoot == "" || directory(value.ConfigurationSourceRoot)
 	if value.EDTBridge != "" && result.Checks["edt_bridge"] {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		_, err := edt.New(value.EDTBridge).Health(ctx)

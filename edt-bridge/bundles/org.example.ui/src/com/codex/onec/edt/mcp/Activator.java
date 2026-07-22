@@ -11,6 +11,8 @@ import com._1c.g5.v8.dt.core.platform.IV8ProjectManager;
 import com._1c.g5.v8.dt.import_.IImportOperationFactory;
 import com._1c.g5.v8.dt.md.copy.IModelObjectCopySupport;
 import com._1c.g5.v8.dt.md.refactoring.core.IMdRefactoringService;
+import com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseAssociationManager;
+import com._1c.g5.v8.dt.platform.services.core.infobases.IInfobaseManager;
 import com._1c.g5.wiring.ServiceAccess;
 import com._1c.g5.wiring.ServiceSupplier;
 
@@ -24,6 +26,8 @@ public final class Activator extends Plugin {
     private ServiceSupplier<IMdRefactoringService> refactoringService;
     private ServiceSupplier<IImportOperationFactory> importOperationFactory;
     private ServiceSupplier<IV8ProjectManager> v8ProjectManager;
+    private ServiceSupplier<IInfobaseManager> infobaseManager;
+    private ServiceSupplier<IInfobaseAssociationManager> infobaseAssociationManager;
     private EdtBridgeServer server;
 
     public static Activator getDefault() {
@@ -40,6 +44,8 @@ public final class Activator extends Plugin {
         refactoringService = ServiceAccess.supplier(IMdRefactoringService.class, this);
         importOperationFactory = ServiceAccess.supplier(IImportOperationFactory.class, this);
         v8ProjectManager = ServiceAccess.supplier(IV8ProjectManager.class, this);
+        infobaseManager = ServiceAccess.supplier(IInfobaseManager.class, this);
+        infobaseAssociationManager = ServiceAccess.supplier(IInfobaseAssociationManager.class, this);
     }
 
     public synchronized void startBridge() {
@@ -57,7 +63,9 @@ public final class Activator extends Plugin {
                 configurationProvider, modelManager, copySupport, refactoringService);
             EdtExternalObjectService externalObjects = new EdtExternalObjectService(projectName,
                 importOperationFactory, v8ProjectManager, modelManager);
-            server = new EdtBridgeServer(metadata, new EdtBslService(projectName), externalObjects);
+            EdtInfobaseService infobases = new EdtInfobaseService(projectName,
+                infobaseManager, infobaseAssociationManager);
+            server = new EdtBridgeServer(metadata, new EdtBslService(projectName), externalObjects, infobases);
             server.start();
             getLog().log(new Status(IStatus.INFO, PLUGIN_ID,
                 "Codex EDT bridge started on loopback interface"));
@@ -74,6 +82,8 @@ public final class Activator extends Plugin {
             server = null;
         }
         close(refactoringService);
+        close(infobaseAssociationManager);
+        close(infobaseManager);
         close(v8ProjectManager);
         close(importOperationFactory);
         close(copySupport);

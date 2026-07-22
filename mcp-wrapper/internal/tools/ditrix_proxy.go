@@ -6,8 +6,10 @@ import (
 	"sort"
 	"strings"
 
+	"mcp-1c-analog/internal/designer"
 	"mcp-1c-analog/internal/ditrix"
 	"mcp-1c-analog/internal/mcp"
+	"mcp-1c-analog/internal/onec"
 )
 
 // DitrixProxyReport describes the capabilities that were accepted from the
@@ -23,7 +25,20 @@ type DitrixProxyReport struct {
 }
 
 type DitrixRegistrationOptions struct {
-	WorkDir string
+	WorkDir                 string
+	BSLLanguageServer       string
+	JavaExecutable          string
+	BSLLanguageServerConfig string
+	TechlogConfig           string
+	TechlogRoot             string
+	VanessaPlatform         string
+	VanessaInfobase         string
+	VanessaRunner           string
+	VanessaFeaturesRoot     string
+	VanessaStepsRoot        string
+	ConfigurationSourceRoot string
+	Designer                *designer.Client
+	LiveClient              *onec.Client
 }
 
 func RegisterDitrixEDT(ctx context.Context, server *mcp.Server, client *ditrix.Client, project string) (DitrixProxyReport, error) {
@@ -43,7 +58,7 @@ func RegisterDitrixEDTWithOptions(ctx context.Context, server *mcp.Server, clien
 	if err != nil {
 		return DitrixProxyReport{}, err
 	}
-	registerRSVCompatibilityTools(server, client, project, options.WorkDir, remoteTools)
+	registerRSVCompatibilityTools(server, client, project, options.WorkDir, remoteTools, options)
 	report := DitrixProxyReport{ServerName: info.Name, ServerVersion: info.Version, LockedProject: project}
 	for _, remote := range remoteTools {
 		if server.HasTool(remote.Name) {
