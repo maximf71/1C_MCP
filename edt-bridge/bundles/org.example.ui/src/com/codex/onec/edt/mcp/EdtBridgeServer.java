@@ -41,6 +41,7 @@ final class EdtBridgeServer implements Closeable {
     private final EdtMetadataService metadata;
     private final EdtBslService bsl;
     private final EdtExternalObjectService externalObjects;
+    private final EdtInfobaseService infobases;
     private final Gson gson = new Gson();
     private final ExecutorService clients = Executors.newCachedThreadPool(new DaemonThreadFactory());
     private final String token = createToken();
@@ -51,10 +52,11 @@ final class EdtBridgeServer implements Closeable {
     private Thread acceptThread;
 
     EdtBridgeServer(EdtMetadataService metadata, EdtBslService bsl,
-        EdtExternalObjectService externalObjects) {
+        EdtExternalObjectService externalObjects, EdtInfobaseService infobases) {
         this.metadata = metadata;
         this.bsl = bsl;
         this.externalObjects = externalObjects;
+        this.infobases = infobases;
     }
 
     void start() throws IOException {
@@ -109,7 +111,9 @@ final class EdtBridgeServer implements Closeable {
             : JsonParser.parseString(request.body()).getAsJsonObject();
         String path = request.path();
         if ("GET".equals(request.method()) && "/health".equals(path)) {
-            return metadata.health();
+            Map<String, Object> health = metadata.health();
+            health.put("infobase_management", true);
+            return health;
         }
         if (!"POST".equals(request.method())) {
             throw new BridgeException(405, "Method not allowed");
@@ -134,6 +138,15 @@ final class EdtBridgeServer implements Closeable {
             optionalInt(body, "limit"), optionalBoolean(body, "include_documentation"));
         case "/external/import-xml" -> externalObjects.importXml(requiredString(body, "project_name"),
             requiredString(body, "source_xml"), optionalString(body, "platform_version"));
+        case "/infobases/list" -> infobases.list();
+        case "/infobases/bind" -> infobases.bind(requiredString(body, "infobase_name"),
+            optionalBoolean(body, "register"), optionalString(body, "base_kind"),
+            optionalString(body, "file_path"), optionalString(body, "server"),
+            optionalString(body, "reference"), optionalString(body, "version"),
+            optionalBoolean(body, "already_synchronized"), optionalBoolean(body, "set_default"),
+            optionalBoolean(body, "confirm"));
+        case "/infobases/unbind" -> infobases.unbind(requiredString(body, "infobase_name"),
+            optionalBoolean(body, "unregister"), optionalBoolean(body, "confirm"));
         default -> throw new BridgeException(404, "Endpoint not found");
         };
     }

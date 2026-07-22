@@ -98,6 +98,18 @@ func (c *Client) ImportExternalObjectXML(ctx context.Context, projectName, sourc
 	})
 }
 
+func (c *Client) ListInfobases(ctx context.Context) (map[string]any, error) {
+	return c.call(ctx, http.MethodPost, "/infobases/list", map[string]any{})
+}
+
+func (c *Client) BindInfobase(ctx context.Context, arguments map[string]any) (map[string]any, error) {
+	return c.call(ctx, http.MethodPost, "/infobases/bind", arguments)
+}
+
+func (c *Client) UnbindInfobase(ctx context.Context, arguments map[string]any) (map[string]any, error) {
+	return c.call(ctx, http.MethodPost, "/infobases/unbind", arguments)
+}
+
 func (c *Client) call(ctx context.Context, method, path string, payload any) (map[string]any, error) {
 	bridge, err := c.readBridge()
 	if err != nil {

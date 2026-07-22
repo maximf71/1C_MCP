@@ -11,7 +11,7 @@
 <feature
       id="com.codex.onec.edt.mcp.feature"
       label="Codex 1C EDT MCP Bridge"
-      version="1.0.0.qualifier"
+      version="1.1.0.qualifier"
       provider-name="%providerName"
       license-feature="org.eclipse.license"
       license-feature-version="2.0.2.qualifier">
@@ -32,7 +32,7 @@
          id="com.codex.onec.edt.mcp"
          download-size="0"
          install-size="0"
-         version="1.0.0.qualifier"
+         version="1.1.0.qualifier"
          unpack="false"/>
 
 </feature>

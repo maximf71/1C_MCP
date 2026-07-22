@@ -1,6 +1,6 @@
 # mcp-wrapper
 
-В версии 0.6.0 добавлены `list_workspace_projects`, `ai_context`, `code_search`, расширенный безопасный `write_module_source`, `export_object` и фиксированный `git`. Параметры и ограничения описаны в [../docs/TOOLS_0_6.md](../docs/TOOLS_0_6.md).
+Версия 0.7.0 добавляет `get_object_help`, `launch_debugger`, `code_review`, `manage_infobase` и `edit_metadata`. Параметры, требования и ограничения описаны в [../docs/TOOLS_0_7.md](../docs/TOOLS_0_7.md); функции 0.6.0 сохранены без изменения контрактов.
 
 Локальный STDIO MCP-сервер на Go для 1С. Процесс закрепляется за одной заданной целью и может объединять:
 
@@ -14,7 +14,7 @@
 Требуется Go 1.25 или новее в `PATH`.
 
 ```powershell
-.\build.ps1 -Version 0.6.0
+.\build.ps1 -Version 0.7.0
 ```
 
 Сценарий выполняет тесты и создаёт `dist\mcp-1c-analog.exe`.

@@ -23,7 +23,10 @@ type DitrixProxyReport struct {
 }
 
 type DitrixRegistrationOptions struct {
-	WorkDir string
+	WorkDir                 string
+	BSLLanguageServer       string
+	JavaExecutable          string
+	BSLLanguageServerConfig string
 }
 
 func RegisterDitrixEDT(ctx context.Context, server *mcp.Server, client *ditrix.Client, project string) (DitrixProxyReport, error) {
@@ -43,7 +46,7 @@ func RegisterDitrixEDTWithOptions(ctx context.Context, server *mcp.Server, clien
 	if err != nil {
 		return DitrixProxyReport{}, err
 	}
-	registerRSVCompatibilityTools(server, client, project, options.WorkDir, remoteTools)
+	registerRSVCompatibilityTools(server, client, project, options.WorkDir, remoteTools, options)
 	report := DitrixProxyReport{ServerName: info.Name, ServerVersion: info.Version, LockedProject: project}
 	for _, remote := range remoteTools {
 		if server.HasTool(remote.Name) {

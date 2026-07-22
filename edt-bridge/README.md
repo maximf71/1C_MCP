@@ -9,6 +9,7 @@
 - диагностика и content assist в позиции курсора;
 - двухфазное клонирование метаданных;
 - импорт управляемых XML-исходников EPF/ERF в проекты с заданным префиксом.
+- список, привязка и отвязка зарегистрированных в EDT информационных баз с обязательным подтверждением изменений.
 
 ## Сборка
 
@@ -19,7 +20,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-17'
 mvn verify
 ```
 
-Основной JAR: `bundles\org.example.ui\target\com.codex.onec.edt.mcp-1.0.0-SNAPSHOT.jar`.
+Основной JAR: `bundles\org.example.ui\target\com.codex.onec.edt.mcp-1.1.0-SNAPSHOT.jar`.
 
 ## Обязательная настройка EDT
 
