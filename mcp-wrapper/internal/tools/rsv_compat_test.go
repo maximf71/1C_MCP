@@ -51,11 +51,14 @@ func TestRSVCompatibilityToolsRouteAndProtectWrites(t *testing.T) {
 			mutex.Lock()
 			calls = append(calls, params)
 			mutex.Unlock()
-			text := "ok:" + params.Name
+			content := []any{map[string]any{"type": "text", "text": "ok:" + params.Name}}
 			if params.Name == "read_module_source" {
-				text = "---\ncontentHash: revision-1\ntotalLines: 3\n---\n```bsl\nLine1\nLine2\nLine3\n```"
+				content = []any{map[string]any{"type": "resource", "resource": map[string]any{
+					"uri": "edt://module", "mimeType": "text/markdown",
+					"text": "---\ncontentHash: revision-1\ntotalLines: 3\n---\n```bsl\nLine1\nLine2\nLine3\n```",
+				}}}
 			}
-			result = map[string]any{"content": []any{map[string]any{"type": "text", "text": text}}}
+			result = map[string]any{"content": content}
 		default:
 			t.Fatalf("unexpected method %s", request.Method)
 		}

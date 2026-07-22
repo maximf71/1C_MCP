@@ -84,6 +84,25 @@ func officialToolResult(value any) *official.CallToolResult {
 					if err == nil {
 						result.Content = append(result.Content, &official.ImageContent{Data: data, MIMEType: fmt.Sprint(item["mimeType"])})
 					}
+				case "resource":
+					resource, _ := item["resource"].(map[string]any)
+					uri, _ := resource["uri"].(string)
+					mimeType, _ := resource["mimeType"].(string)
+					contents := &official.ResourceContents{
+						URI:      uri,
+						MIMEType: mimeType,
+					}
+					if blob, found := resource["blob"]; found {
+						encodedBlob, _ := blob.(string)
+						data, err := base64.StdEncoding.DecodeString(encodedBlob)
+						if err == nil && contents.URI != "" {
+							contents.Blob = data
+							result.Content = append(result.Content, &official.EmbeddedResource{Resource: contents})
+						}
+					} else if contents.URI != "" {
+						contents.Text, _ = resource["text"].(string)
+						result.Content = append(result.Content, &official.EmbeddedResource{Resource: contents})
+					}
 				default:
 					encoded, _ := json.Marshal(item)
 					result.Content = append(result.Content, &official.TextContent{Text: string(encoded)})

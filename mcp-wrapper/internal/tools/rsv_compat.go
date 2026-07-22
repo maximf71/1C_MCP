@@ -22,7 +22,7 @@ var (
 	frontMatterValuePattern = regexp.MustCompile(`(?m)^([A-Za-z][A-Za-z0-9]*):[ \t]*(.+?)[ \t]*$`)
 )
 
-func registerRSVCompatibilityTools(server *mcp.Server, remote *ditrix.Client, project, workDir string, available []ditrix.Tool) {
+func registerRSVCompatibilityTools(server *mcp.Server, remote *ditrix.Client, project, workDir string, available []ditrix.Tool, options DitrixRegistrationOptions) {
 	has := map[string]bool{}
 	for _, item := range available {
 		has[item.Name] = true
@@ -45,6 +45,7 @@ func registerRSVCompatibilityTools(server *mcp.Server, remote *ditrix.Client, pr
 	if has["read_module_source"] && has["write_module_source"] {
 		addIfMissing(server, safeWriteModuleTool(remote, project, workDir, has))
 	}
+	registerMediumCompatibilityTools(server, remote, project, workDir, has, options)
 }
 
 func aiContextTool(remote *ditrix.Client, project string, available map[string]bool) mcp.Tool {
@@ -561,8 +562,16 @@ func mcpText(result map[string]any) string {
 	var parts []string
 	for _, raw := range items {
 		item, _ := raw.(map[string]any)
-		if value, _ := item["text"].(string); value != "" {
-			parts = append(parts, value)
+		switch item["type"] {
+		case "text":
+			if value, _ := item["text"].(string); value != "" {
+				parts = append(parts, value)
+			}
+		case "resource":
+			resource, _ := item["resource"].(map[string]any)
+			if value, _ := resource["text"].(string); value != "" {
+				parts = append(parts, value)
+			}
 		}
 	}
 	return strings.Join(parts, "\n")

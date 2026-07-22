@@ -1,6 +1,6 @@
 # Установка
 
-> Для функций версии 0.6.0 (`ai_context`, `code_search`, безопасная запись BSL, экспорт и Git) см. отдельный раздел [TOOLS_0_6.md](TOOLS_0_6.md).
+> Новые функции версии 0.7.0 и установка BSL Language Server описаны в [TOOLS_0_7.md](TOOLS_0_7.md). Функции версии 0.6.0 сохранены в [TOOLS_0_6.md](TOOLS_0_6.md).
 
 Ниже описана установка с нуля на Windows. Для основной схемы достаточно DitriX EDT-MCP и Go-обёртки. Собственный `edt-bridge` нужен только для дополнительных нативных инструментов и управляемых проектов EPF/ERF.
 
@@ -59,14 +59,14 @@ $health | Format-List
 ```powershell
 Set-Location C:\Tools\1C_MCP\mcp-wrapper
 go version
-.\build.ps1 -Version 0.6.0
+.\build.ps1 -Version 0.7.0
 ```
 
 Сценарий сначала выполняет `go test ./...`, затем создаёт:
 
 ```text
 mcp-wrapper\dist\mcp-1c-analog.exe
-mcp-wrapper\dist\mcp-1c-analog-0.6.0.exe
+mcp-wrapper\dist\mcp-1c-analog-0.7.0.exe
 ```
 
 Проверьте версию:
@@ -128,13 +128,13 @@ mvn -DskipTests package
 JAR создаётся по адресу:
 
 ```text
-edt-bridge\bundles\org.example.ui\target\com.codex.onec.edt.mcp-1.0.0-SNAPSHOT.jar
+edt-bridge\bundles\org.example.ui\target\com.codex.onec.edt.mcp-1.1.0-SNAPSHOT.jar
 ```
 
 Скопируйте JAR в отдельную dropins-структуру EDT:
 
 ```text
-<EDT_HOME>\dropins\com.codex.onec.edt.mcp\plugins\com.codex.onec.edt.mcp-1.0.0-SNAPSHOT.jar
+<EDT_HOME>\dropins\com.codex.onec.edt.mcp\plugins\com.codex.onec.edt.mcp-1.1.0-SNAPSHOT.jar
 ```
 
 После `-vmargs` в `<EDT_HOME>\1cedt.ini` добавьте:
