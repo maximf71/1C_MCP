@@ -22,7 +22,16 @@ type DitrixProxyReport struct {
 	PolicyExcluded []string `json:"policy_excluded_tools"`
 }
 
+type DitrixRegistrationOptions struct {
+	WorkDir string
+}
+
 func RegisterDitrixEDT(ctx context.Context, server *mcp.Server, client *ditrix.Client, project string) (DitrixProxyReport, error) {
+	return RegisterDitrixEDTWithOptions(ctx, server, client, project, DitrixRegistrationOptions{})
+}
+
+func RegisterDitrixEDTWithOptions(ctx context.Context, server *mcp.Server, client *ditrix.Client, project string,
+	options DitrixRegistrationOptions) (DitrixProxyReport, error) {
 	if strings.TrimSpace(project) == "" {
 		return DitrixProxyReport{}, fmt.Errorf("fixed EDT project name is required")
 	}
@@ -34,6 +43,7 @@ func RegisterDitrixEDT(ctx context.Context, server *mcp.Server, client *ditrix.C
 	if err != nil {
 		return DitrixProxyReport{}, err
 	}
+	registerRSVCompatibilityTools(server, client, project, options.WorkDir, remoteTools)
 	report := DitrixProxyReport{ServerName: info.Name, ServerVersion: info.Version, LockedProject: project}
 	for _, remote := range remoteTools {
 		if server.HasTool(remote.Name) {

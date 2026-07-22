@@ -11,6 +11,10 @@
 
 ## Enhanced analogs
 
+- workspace discovery through `list_workspace_projects`;
+- aggregated `ai_context` and six-operation `code_search`;
+- guarded BSL writes with dry-run, backups and post-write EDT diagnostics;
+- fixed-root EPF/ERF/CF/CFE export and fixed-repository Git operations;
 - offline XML validation and deterministic BSL structural lint;
 - query analysis and non-mutating optimization suggestions;
 - fixed-pair configuration/extension comparison;

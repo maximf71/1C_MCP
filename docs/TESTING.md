@@ -1,15 +1,17 @@
 # Проверка
 
+Для версии 0.6.0 дополнительно выполните `go test -race ./...` там, где установлен C-компилятор для CGO. На Windows без GCC используйте повторный прогон `go test -count=5 ./...`. Затем проверьте сценарии из раздела «Приёмочная проверка» в [TOOLS_0_6.md](TOOLS_0_6.md).
+
 ## Go-обёртка
 
 ```powershell
 Set-Location .\mcp-wrapper
 go test ./...
-.\build.ps1 -Version 0.5.0
+.\build.ps1 -Version 0.6.0
 .\dist\mcp-1c-analog.exe --version
 ```
 
-Ожидается успешное завершение всех пакетов и строка `mcp-1c-analog 0.5.0`.
+Ожидается успешное завершение всех пакетов и строка `mcp-1c-analog 0.6.0`.
 
 ## DitriX EDT-MCP
 

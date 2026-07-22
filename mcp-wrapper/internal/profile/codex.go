@@ -89,7 +89,7 @@ func renderCodexBlock(executable string, value Profile, begin, end string) strin
 	if value.BaseURL != "" || value.Infobase != "" || value.DumpDir != "" {
 		writeServer(&builder, value.ID+"_db", executable, []string{"serve", "--profile", value.ID, "--mode", "db"})
 	}
-	if value.EDTBridge != "" || value.DitrixURL != "" {
+	if value.EDTBridge != "" || value.DitrixURL != "" || value.GitRoot != "" {
 		writeServer(&builder, value.ID+"_edt", executable, []string{"serve", "--profile", value.ID, "--mode", "edt"})
 	}
 	builder.WriteString(end)

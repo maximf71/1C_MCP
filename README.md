@@ -1,5 +1,7 @@
 # 1C:EDT MCP Toolkit
 
+Версия 0.6.0 добавляет совместимый слой для повседневной разработки: список проектов EDT, агрегаторы контекста и поиска, безопасное редактирование BSL, единый экспорт EPF/ERF/CF/CFE и ограниченные Git-операции. Полное описание: [TOOLS_0_6.md](docs/TOOLS_0_6.md).
+
 Набор исходников для безопасной работы MCP-клиента с проектами конфигураций 1С в EDT и информационными базами 1С.
 
 Проверенная связка: Windows 11, 1C:EDT 2025.2.6.4, DitriX EDT-MCP 2.8.1, платформа 1С 8.3.27, Go 1.25 и Java 17.
@@ -60,7 +62,7 @@ flowchart LR
    [mcp_servers.onec_edt]
    command = "C:\\Tools\\1C_MCP\\mcp-wrapper\\dist\\mcp-1c-analog.exe"
    args = [
-     "--ditrix-edt-url", "http://127.0.0.1:8765",
+     "--ditrix-edt-url", "http://127.0.0.1:8765/mcp",
      "--ditrix-project", "ИмяПроектаEDT"
    ]
    startup_timeout_sec = 60
