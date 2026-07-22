@@ -561,8 +561,16 @@ func mcpText(result map[string]any) string {
 	var parts []string
 	for _, raw := range items {
 		item, _ := raw.(map[string]any)
-		if value, _ := item["text"].(string); value != "" {
-			parts = append(parts, value)
+		switch item["type"] {
+		case "text":
+			if value, _ := item["text"].(string); value != "" {
+				parts = append(parts, value)
+			}
+		case "resource":
+			resource, _ := item["resource"].(map[string]any)
+			if value, _ := resource["text"].(string); value != "" {
+				parts = append(parts, value)
+			}
 		}
 	}
 	return strings.Join(parts, "\n")
