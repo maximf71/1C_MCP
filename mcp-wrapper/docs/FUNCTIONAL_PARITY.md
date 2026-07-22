@@ -31,6 +31,15 @@
 - managed external object pipeline `generate_external_object`;
 - CLI reports in JSON, SARIF 2.1.0 and HTML.
 
+## Large subsystems
+
+- unified performance, event-log and managed technological-log `diagnostics`;
+- Vanessa Automation step discovery, offline feature checks and guarded batch runs;
+- the complete architect operation vocabulary in `edit_metadata`, dispatched only to reviewed fixed-project EDT tools;
+- native `update_configuration` routing when supported, plus a guarded source-tree compare/merge fallback with immutable plans and snapshots.
+
+The source-tree fallback intentionally does not claim to preserve 1C vendor-support metadata. That capability remains available only through a native EDT 2026.1+ backend.
+
 The deterministic hashed-vector search is deliberately local and dependency
 free; it is not claimed to reproduce a proprietary embedding model. Polling
 transport without web publication and execution of arbitrary BSL are not

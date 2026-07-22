@@ -1,6 +1,6 @@
 # Установка
 
-> Новые функции версии 0.7.0 и установка BSL Language Server описаны в [TOOLS_0_7.md](TOOLS_0_7.md). Функции версии 0.6.0 сохранены в [TOOLS_0_6.md](TOOLS_0_6.md).
+> Крупные подсистемы версии 0.8.0 описаны в [TOOLS_0_8.md](TOOLS_0_8.md). Установка BSL Language Server и функции 0.7.0 сохранены в [TOOLS_0_7.md](TOOLS_0_7.md).
 
 Ниже описана установка с нуля на Windows. Для основной схемы достаточно DitriX EDT-MCP и Go-обёртки. Собственный `edt-bridge` нужен только для дополнительных нативных инструментов и управляемых проектов EPF/ERF.
 
@@ -59,14 +59,14 @@ $health | Format-List
 ```powershell
 Set-Location C:\Tools\1C_MCP\mcp-wrapper
 go version
-.\build.ps1 -Version 0.7.0
+.\build.ps1 -Version 0.8.0
 ```
 
 Сценарий сначала выполняет `go test ./...`, затем создаёт:
 
 ```text
 mcp-wrapper\dist\mcp-1c-analog.exe
-mcp-wrapper\dist\mcp-1c-analog-0.7.0.exe
+mcp-wrapper\dist\mcp-1c-analog-0.8.0.exe
 ```
 
 Проверьте версию:

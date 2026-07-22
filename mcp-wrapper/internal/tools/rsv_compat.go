@@ -46,6 +46,7 @@ func registerRSVCompatibilityTools(server *mcp.Server, remote *ditrix.Client, pr
 		addIfMissing(server, safeWriteModuleTool(remote, project, workDir, has))
 	}
 	registerMediumCompatibilityTools(server, remote, project, workDir, has, options)
+	registerLargeSubsystems(server, remote, project, has, options)
 }
 
 func aiContextTool(remote *ditrix.Client, project string, available map[string]bool) mcp.Tool {

@@ -143,11 +143,12 @@ func launchDebuggerTool(remote *ditrix.Client, project string, available map[str
 }
 
 func metadataFacadeTool(remote *ditrix.Client, project string, available map[string]bool) mcp.Tool {
+	operations := append([]string{"help"}, metadataOperations()...)
 	return mcp.Tool{
 		Name:        "edit_metadata",
-		Description: "Reviewed fixed-project facade for forms, extensions and DCS. Read operations execute immediately. Mutations are dry-run by default and require confirm=true to execute.",
+		Description: "Full fixed-project metadata dispatcher covering objects, specialized metadata, forms, templates, command interfaces, extensions, HTTP services and DCS. Read operations execute immediately; mutations are dry-run by default and require confirm=true.",
 		InputSchema: schema(map[string]any{
-			"operation": enumField("Metadata operation.", "help", "details", "formStructure", "formScreenshot", "formLayout", "create", "modify", "delete", "setDcs", "extensionDetails", "extensionHandler", "extensionResync"),
+			"operation": enumField("Metadata operation.", operations...),
 			"arguments": map[string]any{"type": "object", "description": "Arguments accepted by the selected EDT operation.", "additionalProperties": true},
 			"confirm":   field("boolean", "Execute a create, modify, delete or DCS mutation."),
 		}, "operation"),
@@ -163,8 +164,16 @@ func metadataFacadeTool(remote *ditrix.Client, project string, available map[str
 				"create": "create_metadata", "modify": "modify_metadata", "delete": "delete_metadata",
 				"setDcs": "modify_metadata", "extensionDetails": "get_metadata_details",
 				"extensionHandler": "create_metadata", "extensionResync": "resync_to_disk",
+				"createObject": "create_metadata", "removeObject": "delete_metadata", "renameObject": "rename_metadata_object",
+				"createForm": "create_metadata", "removeForm": "delete_metadata", "listPictures": "list_common_pictures",
+				"createExtensionProject": "create_metadata", "getCommandInterface": "get_metadata_details",
+				"listFormConditionalAppearance": "get_metadata_details", "listTemplateDrawings": "get_template_screenshot",
+				"listExtensions": "get_metadata_details",
 			}
 			toolName := mapping[op]
+			if toolName == "" && isMetadataSemanticOperation(op) {
+				toolName = "modify_metadata"
+			}
 			if toolName == "" {
 				return nil, errors.New("unknown metadata operation")
 			}
@@ -176,11 +185,14 @@ func metadataFacadeTool(remote *ditrix.Client, project string, available map[str
 				return nil, err
 			}
 			call["projectName"] = project
-			mutating := op == "create" || op == "modify" || op == "delete" || op == "setDcs" || op == "extensionHandler" || op == "extensionResync"
+			if isMetadataSemanticOperation(op) && toolName == "modify_metadata" {
+				call["operation"] = op
+			}
+			mutating := !isMetadataReadOperation(op)
 			if mutating && !boolValue(args["confirm"]) {
 				return map[string]any{"dry_run": true, "project": project, "operation": op, "backend_tool": toolName, "arguments": call}, nil
 			}
-			if op == "delete" {
+			if op == "delete" || op == "removeObject" || op == "removeForm" {
 				call["confirm"] = true
 			}
 			result, err := remote.CallTool(ctx, toolName, call)
@@ -370,5 +382,33 @@ func debuggerOperations() []string {
 }
 
 func metadataOperations() []string {
-	return []string{"details", "formStructure", "formScreenshot", "formLayout", "create", "modify", "delete", "setDcs", "extensionDetails", "extensionHandler", "extensionResync"}
+	return []string{
+		"details", "formStructure", "formScreenshot", "formLayout", "create", "modify", "delete", "setDcs", "extensionDetails", "extensionHandler", "extensionResync",
+		"createObject", "removeObject", "renameObject", "setObjectProperty", "setHelp", "addObjectAttribute", "removeObjectAttribute", "addPredefined", "removePredefined", "addTabularSection", "removeTabularSection", "addTabularSectionAttribute", "removeTabularSectionAttribute", "setValueType", "changeAttributeType", "setBaseProject", "createObjectCommand", "removeCommand",
+		"addRegisterField", "removeRegisterField", "addRecorder", "removeRecorder", "addEnumValue", "addSubsystemContent", "removeSubsystemContent", "addFunctionalOptionContent", "removeFunctionalOptionContent", "setRoleRight", "setRoleRestriction", "removeRoleRestriction", "setRestrictionTemplate", "removeRestrictionTemplate", "setDefinedTypeTypes", "addEventSubscriptionHandler", "addAccountExtDimensionType", "removeAccountExtDimensionType", "addExchangePlanContent", "removeExchangePlanContent", "setXdtoNamespace", "addXdtoObjectType", "addXdtoValueType", "addXdtoProperty", "removeXdtoType", "removeXdtoProperty",
+		"createForm", "removeForm", "addFormAttribute", "addFormAttributeColumn", "removeFormAttribute", "removeFormAttributeColumn", "addDynamicListTable", "addField", "addGroup", "addButton", "addTable", "addDecoration", "addRadioButton", "setProperty", "setFormFunctionalOptions", "listPictures", "addEventHandler", "addCommandHandler", "setupSettingsComposerOnForm", "addFormConditionalAppearance", "listFormConditionalAppearance", "removeFormConditionalAppearance", "removeFormCommand", "addFormCommandInterfaceItem", "removeFormCommandInterfaceItem", "setFormCommandInterfaceItemProperty",
+		"addTemplate", "setTemplateCell", "mergeTemplateCells", "setTemplateArea", "addTemplateDrawing", "listTemplateDrawings", "removeTemplateDrawing", "drawTemplate",
+		"getCommandInterface", "setSubsystemsOrder", "setSubsystemVisibility", "addMainSectionCommand", "removeMainSectionCommand", "setMainSectionCommandVisibility", "setSubsystemCommandVisibility", "setCommandPlacement", "setCommandOrder",
+		"createExtensionProject", "adoptObject", "adoptObjects", "adoptChild", "adoptFormItem", "updateAdopted", "unadoptChild", "adoptModule", "installExtension", "listExtensions", "setExtensionSecurity", "uninstallExtension",
+		"addUrlTemplate", "removeUrlTemplate", "addHttpServiceMethod", "removeHttpServiceMethod",
+		"createReportSchema", "repairReportSchema", "addDataSet", "setDataSetProperty", "removeDataSet", "addDataSetField", "removeDataSetField", "addQueryField", "removeQueryField", "addQueryCondition", "addDataSetLink", "setDataSetLinkProperty", "removeDataSetLink", "addSchemaParameter", "setSchemaParameter", "removeSchemaParameter", "moveSchemaParameter", "addCalculatedField", "setCalculatedField", "removeCalculatedField", "addTotalField", "setTotalField", "removeTotalField", "addSettingsGroup", "addSettingsTable", "addSettingsChart", "removeSettingsItem", "addSettingsSelectedField", "removeSettingsSelectedField", "clearSettingsSelectedFields", "addSettingsFilter", "addSettingsFilterGroup", "removeSettingsFilter", "addSettingsOrder", "removeSettingsOrder", "addConditionalAppearance", "setConditionalAppearance", "removeConditionalAppearance", "setDataSetFieldAppearance", "addSettingsVariant", "cloneSettingsVariant", "setSettingsVariantProperty", "removeSettingsVariant", "setSettingsParameter", "removeSettingsParameter", "setOutputParameter", "setSettingsItemUserMode", "addUserField", "moveItem", "removeItem", "syncExport",
+	}
+}
+
+func isMetadataSemanticOperation(operation string) bool {
+	for _, candidate := range metadataOperations() {
+		if operation == candidate {
+			return true
+		}
+	}
+	return false
+}
+
+func isMetadataReadOperation(operation string) bool {
+	switch operation {
+	case "help", "details", "formStructure", "formScreenshot", "formLayout", "extensionDetails", "listPictures", "listFormConditionalAppearance", "listTemplateDrawings", "getCommandInterface", "listExtensions":
+		return true
+	default:
+		return false
+	}
 }
