@@ -1,6 +1,8 @@
 # 1C:EDT MCP Toolkit
 
-Версия 0.7.0 добавляет функции средней сложности: `get_object_help`, единый `launch_debugger`, `code_review` через BSL Language Server, `manage_infobase` и безопасный фасад `edit_metadata` для форм, расширений и СКД. Подробности и примеры: [TOOLS_0_7.md](docs/TOOLS_0_7.md).
+Версия 0.8.0 добавляет крупные подсистемы: Vanessa Automation, технологический журнал и единый `diagnostics`, полное дерево `edit_metadata`, а также безопасное обновление и управляемое объединение конфигураций. Подробности, режимы EDT 2025.2/2026.1 и примеры: [TOOLS_0_8.md](docs/TOOLS_0_8.md).
+
+Версия 0.7.0 добавила функции средней сложности: `get_object_help`, единый `launch_debugger`, `code_review` через BSL Language Server, `manage_infobase` и безопасный фасад `edit_metadata`. Подробности: [TOOLS_0_7.md](docs/TOOLS_0_7.md).
 
 Версия 0.6.0 добавляет совместимый слой для повседневной разработки: список проектов EDT, агрегаторы контекста и поиска, безопасное редактирование BSL, единый экспорт EPF/ERF/CF/CFE и ограниченные Git-операции. Полное описание: [TOOLS_0_6.md](docs/TOOLS_0_6.md).
 

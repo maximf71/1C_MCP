@@ -18,33 +18,41 @@ var validID = regexp.MustCompile(`^[a-z][a-z0-9_-]{1,62}$`)
 // MCP process is always bound to exactly one profile; tools never accept a
 // profile name or an arbitrary infobase path.
 type Profile struct {
-	SchemaVersion       int       `json:"schema_version"`
-	ID                  string    `json:"id"`
-	DisplayName         string    `json:"display_name,omitempty"`
-	BaseKind            string    `json:"base_kind,omitempty"`
-	Infobase            string    `json:"infobase,omitempty"`
-	Platform            string    `json:"platform,omitempty"`
-	PlatformVersion     string    `json:"platform_version,omitempty"`
-	BaseURL             string    `json:"base_url,omitempty"`
-	HTTPUserEnv         string    `json:"http_user_env,omitempty"`
-	HTTPPasswordEnv     string    `json:"http_password_env,omitempty"`
-	DBUserEnv           string    `json:"db_user_env,omitempty"`
-	DBPasswordEnv       string    `json:"db_password_env,omitempty"`
-	DumpDir             string    `json:"dump_dir,omitempty"`
-	ComparisonDump      string    `json:"comparison_dump,omitempty"`
-	CacheDir            string    `json:"cache_dir,omitempty"`
-	WorkDir             string    `json:"work_dir,omitempty"`
-	EDTWorkspace        string    `json:"edt_workspace,omitempty"`
-	EDTBridge           string    `json:"edt_bridge,omitempty"`
-	DitrixURL           string    `json:"ditrix_url,omitempty"`
-	DitrixProject       string    `json:"ditrix_project,omitempty"`
-	ExternalObjectsRoot string    `json:"external_objects_root,omitempty"`
-	GitRoot             string    `json:"git_root,omitempty"`
-	GitExecutable       string    `json:"git_executable,omitempty"`
-	RequestTimeout      string    `json:"request_timeout,omitempty"`
-	MaxResponseSize     int64     `json:"max_response_size,omitempty"`
-	CreatedAt           time.Time `json:"created_at"`
-	UpdatedAt           time.Time `json:"updated_at"`
+	SchemaVersion           int       `json:"schema_version"`
+	ID                      string    `json:"id"`
+	DisplayName             string    `json:"display_name,omitempty"`
+	BaseKind                string    `json:"base_kind,omitempty"`
+	Infobase                string    `json:"infobase,omitempty"`
+	Platform                string    `json:"platform,omitempty"`
+	PlatformVersion         string    `json:"platform_version,omitempty"`
+	BaseURL                 string    `json:"base_url,omitempty"`
+	HTTPUserEnv             string    `json:"http_user_env,omitempty"`
+	HTTPPasswordEnv         string    `json:"http_password_env,omitempty"`
+	DBUserEnv               string    `json:"db_user_env,omitempty"`
+	DBPasswordEnv           string    `json:"db_password_env,omitempty"`
+	DumpDir                 string    `json:"dump_dir,omitempty"`
+	ComparisonDump          string    `json:"comparison_dump,omitempty"`
+	CacheDir                string    `json:"cache_dir,omitempty"`
+	WorkDir                 string    `json:"work_dir,omitempty"`
+	EDTWorkspace            string    `json:"edt_workspace,omitempty"`
+	EDTBridge               string    `json:"edt_bridge,omitempty"`
+	DitrixURL               string    `json:"ditrix_url,omitempty"`
+	DitrixProject           string    `json:"ditrix_project,omitempty"`
+	ExternalObjectsRoot     string    `json:"external_objects_root,omitempty"`
+	GitRoot                 string    `json:"git_root,omitempty"`
+	GitExecutable           string    `json:"git_executable,omitempty"`
+	TechlogConfig           string    `json:"techlog_config,omitempty"`
+	TechlogRoot             string    `json:"techlog_root,omitempty"`
+	VanessaPlatform         string    `json:"vanessa_platform,omitempty"`
+	VanessaInfobase         string    `json:"vanessa_infobase,omitempty"`
+	VanessaRunner           string    `json:"vanessa_runner,omitempty"`
+	VanessaFeaturesRoot     string    `json:"vanessa_features_root,omitempty"`
+	VanessaStepsRoot        string    `json:"vanessa_steps_root,omitempty"`
+	ConfigurationSourceRoot string    `json:"configuration_source_root,omitempty"`
+	RequestTimeout          string    `json:"request_timeout,omitempty"`
+	MaxResponseSize         int64     `json:"max_response_size,omitempty"`
+	CreatedAt               time.Time `json:"created_at"`
+	UpdatedAt               time.Time `json:"updated_at"`
 }
 
 func (p *Profile) Normalize() error {
@@ -72,7 +80,9 @@ func (p *Profile) Normalize() error {
 		}
 		p.Infobase = filepath.Clean(absolute)
 	}
-	for _, path := range []*string{&p.GitRoot, &p.GitExecutable} {
+	for _, path := range []*string{&p.GitRoot, &p.GitExecutable, &p.TechlogConfig, &p.TechlogRoot,
+		&p.VanessaPlatform, &p.VanessaInfobase, &p.VanessaRunner, &p.VanessaFeaturesRoot,
+		&p.VanessaStepsRoot, &p.ConfigurationSourceRoot} {
 		if strings.TrimSpace(*path) == "" {
 			continue
 		}
