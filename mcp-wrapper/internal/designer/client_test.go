@@ -49,3 +49,25 @@ func TestHasLogErrorDoesNotMatchMetadataNames(t *testing.T) {
 		t.Fatal("real Designer error was not detected")
 	}
 }
+
+func TestDumpExtensionCfgUsesSeparateExtensionArgument(t *testing.T) {
+	client := New("1cv8.exe", `C:\Bases\Base`, "", "", t.TempDir())
+	var captured []string
+	client.run = func(ctx context.Context, name string, args ...string) error {
+		captured = append([]string(nil), args...)
+		return nil
+	}
+	destination := filepath.Join(t.TempDir(), "extension.cfe")
+	if err := client.DumpExtensionCfg(context.Background(), destination, "SafeExtension"); err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for index, arg := range captured {
+		if arg == "-Extension" && index+1 < len(captured) && captured[index+1] == "SafeExtension" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("extension selector was not passed safely: %#v", captured)
+	}
+}

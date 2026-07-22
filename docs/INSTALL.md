@@ -1,5 +1,7 @@
 # Установка
 
+> Для функций версии 0.6.0 (`ai_context`, `code_search`, безопасная запись BSL, экспорт и Git) см. отдельный раздел [TOOLS_0_6.md](TOOLS_0_6.md).
+
 Ниже описана установка с нуля на Windows. Для основной схемы достаточно DitriX EDT-MCP и Go-обёртки. Собственный `edt-bridge` нужен только для дополнительных нативных инструментов и управляемых проектов EPF/ERF.
 
 ## 1. Предварительные требования
@@ -57,14 +59,14 @@ $health | Format-List
 ```powershell
 Set-Location C:\Tools\1C_MCP\mcp-wrapper
 go version
-.\build.ps1 -Version 0.5.0
+.\build.ps1 -Version 0.6.0
 ```
 
 Сценарий сначала выполняет `go test ./...`, затем создаёт:
 
 ```text
 mcp-wrapper\dist\mcp-1c-analog.exe
-mcp-wrapper\dist\mcp-1c-analog-0.5.0.exe
+mcp-wrapper\dist\mcp-1c-analog-0.6.0.exe
 ```
 
 Проверьте версию:
@@ -81,7 +83,7 @@ mcp-wrapper\dist\mcp-1c-analog-0.5.0.exe
 [mcp_servers.onec_edt]
 command = "C:\\Tools\\1C_MCP\\mcp-wrapper\\dist\\mcp-1c-analog.exe"
 args = [
-  "--ditrix-edt-url", "http://127.0.0.1:8765",
+  "--ditrix-edt-url", "http://127.0.0.1:8765/mcp",
   "--ditrix-project", "ИмяПроектаEDT"
 ]
 startup_timeout_sec = 60
@@ -97,7 +99,7 @@ args = [
   "--platform", "C:\\Program Files\\1cv8\\8.3.27.1644\\bin\\1cv8.exe",
   "--infobase", "D:\\1C_Bases\\MyBase",
   "--work-dir", "D:\\MCP-Work\\my-base",
-  "--ditrix-edt-url", "http://127.0.0.1:8765",
+  "--ditrix-edt-url", "http://127.0.0.1:8765/mcp",
   "--ditrix-project", "ИмяПроектаEDT"
 ]
 ```

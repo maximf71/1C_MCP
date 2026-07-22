@@ -43,6 +43,8 @@ func legacyMain() {
 	ditrixEDTURL := flag.String("ditrix-edt-url", "", "Fixed loopback URL of a separately installed DitriX EDT-MCP server")
 	ditrixProject := flag.String("ditrix-project", "", "Fixed EDT project exposed through DitriX EDT-MCP")
 	externalObjectsRoot := flag.String("external-objects-root", "", "Existing root allowed for managed external-object XML sources and builds")
+	gitRoot := flag.String("git-root", "", "Fixed Git repository exposed through the scoped git tool")
+	gitExecutable := flag.String("git-executable", "", "Exact Git executable; defaults to PATH lookup")
 	debug := flag.Bool("debug", false, "Write debug logs to cache-dir/server.log")
 	requestTimeout := flag.Duration("request-timeout", onec.DefaultRequestTimeout, "Timeout for a live 1C HTTP request")
 	maxResponseSize := flag.Int64("max-response-size", onec.DefaultMaxResponseBytes, "Maximum live 1C JSON response size in bytes")
@@ -111,7 +113,7 @@ func legacyMain() {
 	}
 
 	server := mcp.NewServer("mcp-1c-analog", version)
-	server.SetInstructions("This server is locked to one configured 1C target. Never request or expose credentials or tokens. For BSL work, inspect existing project code and use EDT content assist, platform documentation, symbol navigation, call hierarchy, and diagnostics instead of guessing platform syntax. DitriX EDT tools are proxied only for the configured project; write and destructive tools require user approval. Managed external-object tools are additionally limited to CodexExt_* projects and paths below the configured external root; they never update the infobase. To clone metadata, always call prepare_clone_metadata first, review its plan_id and summary, then call apply_prepared_change only after explicit user approval. Never guess or reuse a plan_id. A prepared plan is refused if the source project or configuration changed.")
+	server.SetInstructions("This server is locked to one configured 1C target. Never request or expose credentials or tokens. For BSL work, inspect existing project code and use EDT content assist, platform documentation, symbol navigation, call hierarchy, and diagnostics instead of guessing platform syntax. DitriX EDT tools are proxied only for the configured project; write and destructive tools require user approval. write_module_source is dry-run by default; review its preview before setting dryRun=false. Exports stay below the configured work directory. The git tool is limited to one configured repository, disables hooks and requires confirm=true for mutations. Managed external-object tools are additionally limited to CodexExt_* projects and paths below the configured external root; they never update the infobase. To clone metadata, always call prepare_clone_metadata first, review its plan_id and summary, then call apply_prepared_change only after explicit user approval. Never guess or reuse a plan_id. A prepared plan is refused if the source project or configuration changed.")
 	tools.RegisterWithOptions(server, client, index, bslhelp.Default(), tools.RegisterOptions{
 		DumpDir: *dumpDir, DitrixClient: proxyClient, DitrixProject: *ditrixProject,
 	})
@@ -125,7 +127,8 @@ func legacyMain() {
 		tools.RegisterEdtMetadata(server, edtClient)
 	}
 	if proxyClient != nil {
-		report, err := tools.RegisterDitrixEDT(context.Background(), server, proxyClient, *ditrixProject)
+		report, err := tools.RegisterDitrixEDTWithOptions(context.Background(), server, proxyClient, *ditrixProject,
+			tools.DitrixRegistrationOptions{WorkDir: *workDir})
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "DitriX EDT-MCP discovery failed: %v\n", err)
 			os.Exit(1)
@@ -142,20 +145,33 @@ func legacyMain() {
 			os.Exit(1)
 		}
 	}
+	var designerClient *designer.Client
 	if *platform != "" || *infobase != "" {
 		if *platform == "" || *infobase == "" {
 			fmt.Fprintln(os.Stderr, "--platform and --infobase must be specified together")
 			os.Exit(2)
 		}
-		designerClient := designer.New(*platform, *infobase, dbUser, dbPassword, *workDir)
+		designerClient = designer.New(*platform, *infobase, dbUser, dbPassword, *workDir)
 		if err := designerClient.Validate(); err != nil {
 			fmt.Fprintf(os.Stderr, "metadata management initialization failed: %v\n", err)
 			os.Exit(1)
 		}
 		tools.RegisterMetadata(server, metadata.NewManager(designerClient, *workDir))
 	}
+	if proxyClient != nil || designerClient != nil {
+		if err := tools.RegisterExportObject(server, proxyClient, designerClient, *ditrixProject, filepath.Join(*workDir, "exports")); err != nil {
+			fmt.Fprintf(os.Stderr, "export_object initialization failed: %v\n", err)
+			os.Exit(1)
+		}
+	}
 	tools.RegisterAnalysis(server, index, *dumpDir, *comparisonDump)
 	tools.RegisterWorkspace(server, *workDir)
+	if *gitRoot != "" {
+		if err := tools.RegisterGit(server, tools.GitOptions{Root: *gitRoot, Executable: *gitExecutable, WorkDir: *workDir}); err != nil {
+			fmt.Fprintf(os.Stderr, "git tool initialization failed: %v\n", err)
+			os.Exit(1)
+		}
+	}
 	if err := server.ServeOfficialStdio(context.Background()); err != nil {
 		fmt.Fprintf(os.Stderr, "mcp server failed: %v\n", err)
 		os.Exit(1)

@@ -68,6 +68,8 @@ func runSetup(args []string, input io.Reader, output io.Writer) error {
 	ditrixURL := set.String("ditrix-url", "", "DitriX MCP URL")
 	ditrixProject := set.String("ditrix-project", "", "Fixed EDT project")
 	externalRoot := set.String("external-objects-root", "", "Managed external objects root")
+	gitRoot := set.String("git-root", "", "Fixed Git repository for the scoped git tool")
+	gitExecutable := set.String("git-executable", "", "Exact Git executable")
 	profilesDir := set.String("profiles-dir", "", "Profiles directory")
 	codexConfig := set.String("codex-config", defaultCodexConfig(), "Codex config.toml path")
 	skipCodex := set.Bool("skip-codex", false, "Do not update Codex config")
@@ -126,7 +128,8 @@ func runSetup(args []string, input io.Reader, output io.Writer) error {
 		HTTPUserEnv: *httpUserEnv, HTTPPasswordEnv: *httpPasswordEnv, DBUserEnv: *dbUserEnv, DBPasswordEnv: *dbPasswordEnv,
 		DumpDir: *dumpDir, ComparisonDump: *comparisonDump, CacheDir: filepath.Join(workRoot, "cache"), WorkDir: filepath.Join(workRoot, "metadata"),
 		EDTWorkspace: *edtWorkspace, EDTBridge: *edtBridge, DitrixURL: *ditrixURL, DitrixProject: *ditrixProject,
-		ExternalObjectsRoot: *externalRoot, RequestTimeout: *requestTimeout, MaxResponseSize: maximum,
+		ExternalObjectsRoot: *externalRoot, GitRoot: *gitRoot, GitExecutable: *gitExecutable,
+		RequestTimeout: *requestTimeout, MaxResponseSize: maximum,
 	}
 	if !*skipExtension && value.Infobase != "" {
 		if value.Platform == "" {
@@ -241,6 +244,12 @@ func runServe(args []string) error {
 	}
 	legacyArgs := []string{"--cache-dir", value.CacheDir, "--work-dir", value.WorkDir,
 		"--request-timeout", value.RequestTimeout, "--max-response-size", fmt.Sprint(value.MaxResponseSize)}
+	if value.GitRoot != "" {
+		legacyArgs = append(legacyArgs, "--git-root", value.GitRoot)
+		if value.GitExecutable != "" {
+			legacyArgs = append(legacyArgs, "--git-executable", value.GitExecutable)
+		}
+	}
 	if strings.EqualFold(*mode, "db") {
 		if value.BaseURL != "" {
 			legacyArgs = append(legacyArgs, "--base", value.BaseURL)
@@ -362,6 +371,8 @@ func checkProfile(value profile.Profile) profileCheck {
 	result.Checks["comparison_dump"] = value.ComparisonDump == "" || directory(value.ComparisonDump)
 	result.Checks["edt_bridge"] = value.EDTBridge == "" || regularFile(value.EDTBridge)
 	result.Checks["ditrix_url"] = value.DitrixURL == "" || validLoopbackMCP(value.DitrixURL)
+	result.Checks["git_root"] = value.GitRoot == "" || directory(filepath.Join(value.GitRoot, ".git")) || regularFile(filepath.Join(value.GitRoot, ".git"))
+	result.Checks["git_executable"] = value.GitExecutable == "" || regularFile(value.GitExecutable)
 	if value.EDTBridge != "" && result.Checks["edt_bridge"] {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		_, err := edt.New(value.EDTBridge).Health(ctx)

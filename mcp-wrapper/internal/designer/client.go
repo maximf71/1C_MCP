@@ -118,6 +118,18 @@ func (c *Client) DumpCfg(ctx context.Context, destination string) error {
 	return c.designer(ctx, "backup-cf", "/DumpCfg", destination)
 }
 
+// DumpExtensionCfg exports one installed configuration extension to a CFE
+// file through Designer's non-interactive -Extension selector.
+func (c *Client) DumpExtensionCfg(ctx context.Context, destination, extensionName string) error {
+	if strings.TrimSpace(extensionName) == "" {
+		return errors.New("extension name is required")
+	}
+	if err := os.MkdirAll(filepath.Dir(destination), 0o700); err != nil {
+		return err
+	}
+	return c.designer(ctx, "backup-cfe", "/DumpCfg", destination, "-Extension", extensionName)
+}
+
 func (c *Client) LoadCfg(ctx context.Context, source string) error {
 	return c.designer(ctx, "restore-cf", "/LoadCfg", source)
 }

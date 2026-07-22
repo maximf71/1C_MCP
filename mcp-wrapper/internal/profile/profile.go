@@ -39,6 +39,8 @@ type Profile struct {
 	DitrixURL           string    `json:"ditrix_url,omitempty"`
 	DitrixProject       string    `json:"ditrix_project,omitempty"`
 	ExternalObjectsRoot string    `json:"external_objects_root,omitempty"`
+	GitRoot             string    `json:"git_root,omitempty"`
+	GitExecutable       string    `json:"git_executable,omitempty"`
 	RequestTimeout      string    `json:"request_timeout,omitempty"`
 	MaxResponseSize     int64     `json:"max_response_size,omitempty"`
 	CreatedAt           time.Time `json:"created_at"`
@@ -69,6 +71,16 @@ func (p *Profile) Normalize() error {
 			return fmt.Errorf("resolve infobase: %w", err)
 		}
 		p.Infobase = filepath.Clean(absolute)
+	}
+	for _, path := range []*string{&p.GitRoot, &p.GitExecutable} {
+		if strings.TrimSpace(*path) == "" {
+			continue
+		}
+		absolute, err := filepath.Abs(*path)
+		if err != nil {
+			return fmt.Errorf("resolve fixed tool path: %w", err)
+		}
+		*path = filepath.Clean(absolute)
 	}
 	for _, field := range []struct {
 		name  string

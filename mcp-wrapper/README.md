@@ -1,5 +1,7 @@
 # mcp-wrapper
 
+В версии 0.6.0 добавлены `list_workspace_projects`, `ai_context`, `code_search`, расширенный безопасный `write_module_source`, `export_object` и фиксированный `git`. Параметры и ограничения описаны в [../docs/TOOLS_0_6.md](../docs/TOOLS_0_6.md).
+
 Локальный STDIO MCP-сервер на Go для 1С. Процесс закрепляется за одной заданной целью и может объединять:
 
 - модель проекта из DitriX EDT-MCP;
@@ -12,7 +14,7 @@
 Требуется Go 1.25 или новее в `PATH`.
 
 ```powershell
-.\build.ps1 -Version 0.5.0
+.\build.ps1 -Version 0.6.0
 ```
 
 Сценарий выполняет тесты и создаёт `dist\mcp-1c-analog.exe`.
@@ -21,7 +23,7 @@
 
 ```powershell
 .\dist\mcp-1c-analog.exe `
-  --ditrix-edt-url http://127.0.0.1:8765 `
+  --ditrix-edt-url http://127.0.0.1:8765/mcp `
   --ditrix-project 'ИмяПроектаEDT'
 ```
 
