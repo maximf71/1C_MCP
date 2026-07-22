@@ -79,6 +79,10 @@ func TestMediumCompatibilityToolsAreLockedAndGuardMutations(t *testing.T) {
 		{"name": "launch_debugger", "arguments": map[string]any{"operation": "status"}},
 		{"name": "launch_debugger", "arguments": map[string]any{"operation": "evaluate", "arguments": map[string]any{"expression": "1+1"}}},
 		{"name": "edit_metadata", "arguments": map[string]any{"operation": "setDcs", "arguments": map[string]any{"objectFqn": "Report.Sales"}}},
+		{"name": "edit_metadata", "arguments": map[string]any{"operation": "addField", "arguments": map[string]any{"formFqn": "Catalog.Partners.Form.ItemForm", "name": "Comment"}}},
+		{"name": "diagnostics", "arguments": map[string]any{"operation": "status"}},
+		{"name": "vanessa", "arguments": map[string]any{"operation": "status"}},
+		{"name": "update_configuration", "arguments": map[string]any{"operation": "help"}},
 	}
 	var input strings.Builder
 	for index, request := range requests {
@@ -91,7 +95,7 @@ func TestMediumCompatibilityToolsAreLockedAndGuardMutations(t *testing.T) {
 		t.Fatal(err)
 	}
 	responses := output.String()
-	if !strings.Contains(responses, "Партнеры") || !strings.Contains(responses, "Справка") || !strings.Contains(responses, "evaluate requires confirm=true") || !strings.Contains(responses, `\"dry_run\": true`) {
+	if !strings.Contains(responses, "Партнеры") || !strings.Contains(responses, "Справка") || !strings.Contains(responses, "evaluate requires confirm=true") || !strings.Contains(responses, `\"dry_run\": true`) || !strings.Contains(responses, "guarded-source-tree") || !strings.Contains(responses, "performance_backend") {
 		t.Fatalf("unexpected responses: %s", responses)
 	}
 	mutex.Lock()
@@ -102,6 +106,18 @@ func TestMediumCompatibilityToolsAreLockedAndGuardMutations(t *testing.T) {
 		}
 		if value, exists := call.Arguments["projectName"]; exists && value != "FixedProject" {
 			t.Fatalf("foreign project reached backend: %#v", call)
+		}
+	}
+}
+
+func TestMetadataFacadeCoversArchitectOperationTree(t *testing.T) {
+	operations := metadataOperations()
+	if len(operations) < 140 {
+		t.Fatalf("only %d metadata operations are registered", len(operations))
+	}
+	for _, required := range []string{"createObject", "addRegisterField", "addDynamicListTable", "drawTemplate", "setRoleRestriction", "addHttpServiceMethod", "addSettingsVariant", "syncExport"} {
+		if !isMetadataSemanticOperation(required) {
+			t.Fatalf("operation %s is missing", required)
 		}
 	}
 }

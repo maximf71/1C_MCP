@@ -37,6 +37,10 @@ func TestMediumToolsLive(t *testing.T) {
 		{"name": "launch_debugger", "arguments": map[string]any{"operation": "status"}},
 		{"name": "launch_debugger", "arguments": map[string]any{"operation": "listBreakpoints"}},
 		{"name": "edit_metadata", "arguments": map[string]any{"operation": "setDcs", "arguments": map[string]any{"objectFqns": []string{"Report.NonexistentDryRun"}}}},
+		{"name": "edit_metadata", "arguments": map[string]any{"operation": "help"}},
+		{"name": "diagnostics", "arguments": map[string]any{"operation": "status"}},
+		{"name": "vanessa", "arguments": map[string]any{"operation": "status"}},
+		{"name": "update_configuration", "arguments": map[string]any{"operation": "help"}},
 	}
 	if helpFQN := os.Getenv("LIVE_HELP_FQN"); helpFQN != "" {
 		requests = append(requests, map[string]any{"name": "get_object_help", "arguments": map[string]any{"object_fqn": helpFQN}})
@@ -61,7 +65,14 @@ func TestMediumToolsLive(t *testing.T) {
 	if strings.Contains(responses, `"error":`) {
 		t.Fatalf("live MCP call failed: %s", responses)
 	}
-	for _, marker := range []string{"dry_run", "help_file", "total_diagnostics"} {
+	markers := []string{"dry_run", "performance_backend", "guarded-source-tree", "provider_support_metadata"}
+	if os.Getenv("LIVE_HELP_FQN") != "" {
+		markers = append(markers, "help_file")
+	}
+	if os.Getenv("LIVE_BSL_MODULE") != "" && os.Getenv("LIVE_BSL_SERVER") != "" {
+		markers = append(markers, "total_diagnostics")
+	}
+	for _, marker := range markers {
 		if !strings.Contains(strings.ToLower(responses), marker) {
 			t.Fatalf("live response has no %q marker: %s", marker, responses)
 		}
